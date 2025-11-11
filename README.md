@@ -10,7 +10,7 @@ Suite complète d'outils CLI pour télécharger, transformer et s'entraîner sur
 - `extract.py` : Utiliser pour la transformation des exercices (calcul du FEN après premier coup)
 
 **Merci de lire ce fichier entiérement pour comprendre comment fonctionne la suite de logiciels.
-Pour une utilisation simple (obtenir les exercices + lancer le trainer) vous n'aurez besoin de ne lancer qu'un script pour tout installer et un autre pour vous vous entrainer.**
+Pour une utilisation simple (obtenir les exercices + lancer le trainer) vous n'aurez besoin de ne lancer qu'un script pour tout installern dueant une dizaine de minutes selon votre connexion et votre matériel, et un autre pour vous vous entrainer.**
 
 ---
 
