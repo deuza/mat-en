@@ -1,16 +1,11 @@
-
-# Lichess Puzzle Suite - mat-en
+# Lichess Puzzle Suite
 
 Suite complète d'outils CLI pour télécharger, transformer et s'entraîner sur les puzzles d'échecs de la base Lichess.
 
 **Composants :**
-- `download_puzzles.sh` : Téléchargement, décompression automatique et générations de tous les exercices
-- `trainer.py` : Entraînement interactif avec vérification des coups
-  
-- `extract.py` : Utiliser pour la transformation des exercices (calcul du FEN après premier coup)
-
-**Merci de lire ce fichier entiérement pour comprendre comment fonctionne la suite de logiciels.
-Pour une utilisation simple (obtenir les exercices + lancer le trainer) vous n'aurez besoin de ne lancer qu'un script pour tout installern dueant une dizaine de minutes selon votre connexion et votre matériel, et un autre pour vous vous entrainer.**
+- 🌐 `download_puzzles.sh` : Téléchargement et décompression automatique
+- 🔧 `extract.py` : Transformation des puzzles (calcul du FEN après premier coup)
+- 🎮 `puzzle_trainer.py` : Entraînement interactif avec vérification des coups
 
 ---
 
@@ -46,6 +41,17 @@ wget --version
 zstd --version
 ```
 
+### Sur FreeBSD
+```bash
+# En tant que root
+pkg install python3 wget zstd
+
+# Vérification
+python3 --version
+wget --version
+zstd --version
+```
+
 ### Explication des binaires
 
 - **python3** : Interpréteur Python pour exécuter les scripts
@@ -60,7 +66,7 @@ zstd --version
 ### Étape 1 : Créer le répertoire de travail
 ```bash
 # Créer le répertoire (si nécessaire)
-mkdir ~/mat-en
+mkdir -p ~/mat-en
 
 # Se placer dedans
 cd ~/mat-en
@@ -94,7 +100,7 @@ python3 -c "import chess; print(chess.__version__)"
 # Télécharger ou créer les scripts, puis les rendre exécutables
 chmod +x download_puzzles.sh
 chmod +x extract.py
-chmod +x trainer.py
+chmod +x puzzle_trainer.py
 ```
 
 ### À ce stade, vous devriez avoir :
@@ -103,14 +109,14 @@ chmod +x trainer.py
 ├── venv/                    # Environnement virtuel Python
 ├── download_puzzles.sh      # Script de téléchargement
 ├── extract.py               # Script de parsing Python
-└── trainer.py               # Trainer interactif
+└── puzzle_trainer.py        # Trainer interactif
 ```
 
 ---
 
 ## 3. Téléchargement de la base Lichess
 
-Le script `download_puzzles.sh` automatise le téléchargement, la décompression et la génération de l'ensemble des fichiers d'exercice.
+Le script `download_puzzles.sh` automatise le téléchargement et la décompression.
 
 ### Utilisation du script
 ```bash
@@ -127,118 +133,36 @@ cd ~/mat-en
 2. **Télécharge** `lichess_db_puzzle.csv.zst` (~263 Mo)
 3. **Décompresse** le fichier en `lichess_db_puzzle.csv` (~1.5 Go)
 4. **Affiche** des statistiques sur le fichier
-5. **Création** de l'ensemble des fichiers d'exercices
-
-Ce script permet de tout faire en appellant les autres scripts de façon automatisée.
 
 ### Sortie attendue
 ```
+=== Téléchargement de la base Lichess Puzzles ===
 
-=== Initialisation ou mise à jour de la base Lichess Puzzles ===
-
-Vérification des binaires nécessaires ...
+Vérification des binaires...
 ✓ wget et zstd sont disponibles
 
-Téléchargement de lichess_db_puzzle.csv.zst en cours ...
---2025-11-11 17:12:47--  https://database.lichess.org/lichess_db_puzzle.csv.zst
-Resolving database.lichess.org (database.lichess.org)... 2001:41d0:700:5e3e::, 141.95.66.62
-Connecting to database.lichess.org (database.lichess.org)|2001:41d0:700:5e3e::|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 275506978 (263M) [application/octet-stream]
-Saving to: ‘lichess_db_puzzle.csv.zst’
+Téléchargement de lichess_db_puzzle.csv.zst (~263 Mo)...
+--2025-11-11 10:30:00--  https://database.lichess.org/lichess_db_puzzle.csv.zst
+[...]
+Saving to: 'lichess_db_puzzle.csv.zst'
+100%[================================>] 263.00M  5.20MB/s    in 51s
 
-lichess_db_puzzle.csv.zst                   100%[=========================================================================================>] 262.74M  9.89MB/s    in 27s
-
-2025-11-11 17:13:15 (9.63 MB/s) - ‘lichess_db_puzzle.csv.zst’ saved [275506978/275506978]
-
-
-Décompression du fichier lichess_db_puzzle.csv.zst ...
-lichess_db_puzzle.csv.zst: 1014349565 bytes
+Décompression...
+lichess_db_puzzle.csv.zst: 1560823808 bytes
 
 === Terminé ===
 Fichier compressé   : 263M
-Fichier décompressé : 968M
+Fichier décompressé : 1.5G
 Nombre de lignes    : 5524872
 
-
-Souhaitez vous effacer le fichier lichess_db_puzzle.csv.zst ? (conseillé) (y/N)
-y
-
-Le fichier lichess_db_puzzle.csv.zst à été supprimé
-
-
-Souhaitez vous créer l'ensemble des fichiers d'exercice contenus dans le fichier lichess_db_puzzle.csv (conseillé) ? (y/N)
-y
-
-Extraction des mats en 1 coups ...
-# Démarrage du traitement...
-# 10000 puzzles traités | dernier coup: b4b7 | ligne 71211
-# 20000 puzzles traités | dernier coup: d7f8 | ligne 143660
-...
-# 760000 puzzles traités | dernier coup: f6d5 | ligne 5471953
-# Terminé: 767302 puzzles traités sur 5524872 lignes
-
-✓ Le ficher mat1.csv créé
-
-Extraction des mats en 2 coups ...
-# Démarrage du traitement...
-# 10000 puzzles traités | dernier coup: f5h7 | ligne 77375
-# 20000 puzzles traités | dernier coup: b5b4 | ligne 154563
-...
-# 160000 puzzles traités | dernier coup: b3b2 | ligne 5095920
-# 170000 puzzles traités | dernier coup: d7f5 | ligne 5417198
-# Terminé: 173448 puzzles traités sur 5524872 lignes
-
-✓ Le ficher mat3.csv créé
-
-Extraction des mats en 4 coups ...
-# Démarrage du traitement...
-# 10000 puzzles traités | dernier coup: g1h1 | ligne 2178731
-# 20000 puzzles traités | dernier coup: f1g1 | ligne 4366921
-# Terminé: 25243 puzzles traités sur 5524872 lignes
-
-✓ Le ficher mat4.csv créé
-
-Extraction des mats en 5 coups ...
-# Démarrage du traitement...
-# Terminé: 5423 puzzles traités sur 5524872 lignes
-
-✓ Le ficher mat5.csv créé
-
-
-Souhaitez vous effacer le fichier lichess_db_puzzle.csv ? (conseillé) (y/N)
-y
-
-Le fichier lichess_db_puzzle.csv à été supprimé
-
-=== Informations sur les fichiers d'exercices disponibles ===
-
-Nombre d'exercice de mats en 1 coups :
-767302 mat1.csv
-
-Nombre d'exercice de mats en 2 coups :
-712749 mat2.csv
-
-Nombre d'exercice de mats en 3 coups :
-173448 mat3.csv
-
-Nombre d'exercice de mats en 4 coups :
-25243 mat4.csv
-
-Nombre d'exercice de mats en 5 coups :
-5423 mat5.csv
-
-Tout s'est correctement déroulé.
-Bon jeu à vous grâce à Lichess ! :)
-
-=> https://lichess.org/
+Prêt à parser avec extract.py !
 ```
 
 ### Gestion des fichiers existants
 
 Si vous relancez le script alors que les fichiers existent déjà, il vous demandera si vous voulez les remplacer :
 ```bash
-Le fichier existe déjà. Souhaitez vous le remplacer ? (conseillé) (y/N)
+Le fichier existe déjà. Remplacement ? (y/N)
 ```
 
 - Répondez `y` pour télécharger/décompresser à nouveau
@@ -250,9 +174,9 @@ Le fichier existe déjà. Souhaitez vous le remplacer ? (conseillé) (y/N)
 
 Le script `extract.py` transforme les puzzles Lichess en positions FEN exploitables.
 
-### ⚠️ Activer le venv à chaque session ⚠️
+### ⚠️ Activer le venv à chaque session
 
-**IMPORTANT** : À chaque fois que vous souhaitez modifier les fichiers d'exercices, vous devez activer le venv :
+**IMPORTANT** : À chaque fois que vous ouvrez un nouveau terminal, vous devez activer le venv :
 ```bash
 cd ~/mat-en
 source venv/bin/activate
@@ -281,7 +205,7 @@ Vous devriez voir `(venv)` apparaître dans votre prompt.
 PuzzleId,FEN_après_coup_adversaire,Solution,URL,OpeningTags
 ```
 
-#### Sans ID (--no_id)
+#### Sans ID (--no_id) - Recommandé pour le trainer
 ```csv
 FEN_après_coup_adversaire,Solution,URL,OpeningTags
 ```
@@ -290,10 +214,10 @@ FEN_après_coup_adversaire,Solution,URL,OpeningTags
 
 #### Exemple 1 : Extraire tous les mats en 1
 ```bash
-# Avec IDs (pour ne pas reproposer l'exercice)
-./extract.py --mat-en 1 --verbose lichess_db_puzzle.csv > mat1.csv
+# Avec IDs (pour sauvegarde)
+./extract.py --mat-en 1 --verbose lichess_db_puzzle.csv > mat1_avec_id.csv
 
-# Sans IDs
+# Sans IDs (pour le trainer)
 ./extract.py --mat-en 1 --no_id --verbose lichess_db_puzzle.csv > mat1.csv
 ```
 
@@ -306,7 +230,7 @@ FEN_après_coup_adversaire,Solution,URL,OpeningTags
 # Terminé: 767302 puzzles traités sur 5524872 lignes
 ```
 
-**Temps d'exécution** : ~10 minutes sur Raspberry Pi 4
+**Temps d'exécution** : ~5-6 minutes sur Raspberry Pi 4
 
 #### Exemple 2 : Générer tous les niveaux d'un coup
 ```bash
@@ -321,24 +245,32 @@ done
 wc -l mat*.csv
 ```
 
-**Temps total** : ~10 minutes sur Raspberry Pi 4 pour la génération des 5 niveaux
-- Note : Le nombre d'exercies est décroissant selon le niveau, il y'a beaucoup plus de mats en 1 coup que de mat en 5 coups !
+**Temps total** : ~25-30 minutes sur Raspberry Pi 4 pour les 5 niveaux
+
+#### Exemple 3 : Extraction rapide sans transformation FEN (optionnel)
+
+Si vous avez aussi le script Perl `extract.pl` pour un filtrage rapide sans calcul de FEN :
+```bash
+# Filtrage Perl ultra-rapide (56 secondes pour tout le fichier)
+./extract.pl --mat-en 1 lichess_db_puzzle.csv > mat1_brut.csv
+```
 
 ---
 
 ## 5. Entraînement interactif
 
-Le script `trainer.py` est un trainer interactif en mode CLI pour exploiter les fichiers et s'entraîner sur les puzzles.
-Vous choisissez le nombre de coups à trouver et il vous donne une position FEN prête à coller dans un programme d'échecs ou directement sur l'échiquier d'analyser Lichess par exemple : `https://lichess.org/analysis` ou `https://www.chess.com/analysis` (penser à désactiver l'évaluation pour ne pas avoir immédiatement la solution !)
+Le script `puzzle_trainer.py` est un trainer interactif en mode CLI pour s'entraîner sur les puzzles.
 
 ### ⚠️ Prérequis
 
+- Le venv doit être activé : `source venv/bin/activate`
 - Au moins un fichier `mat*.csv` doit exister dans le répertoire
 
 ### Lancement du trainer
 ```bash
 cd ~/mat-en
-./trainer.py
+source venv/bin/activate
+./puzzle_trainer.py
 ```
 
 ### Interface du trainer
@@ -380,7 +312,7 @@ Entrez votre coup en notation UCI (ex: d6h2) ou 's' pour la solution:
 ✅ **Détection automatique** des fichiers mat*.csv disponibles  
 ✅ **Gestion des formats** : avec ou sans IDs  
 ✅ **Historique des puzzles** (si fichier avec IDs) - ne retombe jamais sur le même puzzle  
-✅ **Vérification des coups** - valide si votre premier coup est correct  
+✅ **Vérification des coups** - valide si votre coup est correct  
 ✅ **Phrases amusantes** variées  
 ✅ **Statistiques de session** - taux de réussite en temps réel  
 ✅ **Interface colorée** avec émojis  
@@ -442,13 +374,19 @@ Puzzles tentés: 15
 Puzzles réussis: 12
 Taux de réussite: 80.0%
 
-Merci d'avoir joué ! À bientôt 🤘
+Merci d'avoir joué ! À bientôt camarade 🤘
 ```
 
 ### Commandes avancées
 ```bash
 # Lancer le trainer et rediriger les erreurs dans un fichier
 ./puzzle_trainer.py 2> errors.log
+
+# Utiliser screen pour une session détachable
+screen -S chess
+./puzzle_trainer.py
+# Ctrl+A puis D pour détacher
+# screen -r chess pour rattacher
 ```
 
 ---
@@ -472,7 +410,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install python-chess
 
-# 4. Placer les 3 scripts dans le répertoire `mat-en^ puis les rendre exécutables
+# 4. Rendre les scripts exécutables
 chmod +x *.sh *.py
 ```
 
@@ -485,20 +423,40 @@ source venv/bin/activate
 # 2. Télécharger la base Lichess
 ./download_puzzles.sh
 
-# 3. Vérification de la présence des fichiers d'exercice ainsi que leurs contenus
-ls -lh mat*.csv && wc -l mat*.csv
+# 3. Extraire tous les niveaux (mat1 à mat5)
+for i in {1..5}; do
+    echo "Extraction niveau $i..."
+    ./extract.py --mat-en $i --no_id --verbose lichess_db_puzzle.csv > mat${i}.csv
+done
+
+# Vérification
+ls -lh mat*.csv
 ```
 
-**Temps total** : ~30 minutes sur Raspberry Pi 4 (installation + téléchargement + extraction)
+**Temps total** : ~1 heure sur Raspberry Pi 4 (téléchargement + extraction)
 
 ### Utilisation quotidienne
 ```bash
+# 1. Activer le venv
+cd ~/mat-en
+source venv/bin/activate
 
-# 1. Lancer le trainer
+# 2. Lancer le trainer
 ./puzzle_trainer.py
 
-# 2. Choisir votre niveau et jouer ! 🎯
+# 3. Choisir votre niveau et jouer !
 ```
+
+### Astuce : Alias pour aller plus vite
+
+Ajoutez dans votre `~/.bashrc` :
+```bash
+alias chess='cd ~/mat-en && source venv/bin/activate && ./puzzle_trainer.py'
+```
+
+Puis rechargez : `source ~/.bashrc`
+
+Maintenant tapez juste `chess` pour lancer le trainer ! 🎯
 
 ---
 
@@ -517,7 +475,7 @@ VERBOSE_INTERVAL = 10000
 - `10000` : affichage toutes les ~3-5 secondes (recommandé)
 - `50000` : affichage toutes les ~15-20 secondes (peu de spam)
 
-### Personnaliser les phrases fun (trainer.py)
+### Personnaliser les phrases fun (puzzle_trainer.py)
 
 Éditez `puzzle_trainer.py`, ligne ~20 :
 ```python
@@ -543,8 +501,8 @@ rm .puzzles_history_*
 ### Générer uniquement certains niveaux
 ```bash
 # Seulement mat1 et mat3
-./extract.py --mat-en 1 --verbose lichess_db_puzzle.csv > mat1.csv
-./extract.py --mat-en 3 --verbose lichess_db_puzzle.csv > mat3.csv
+./extract.py --mat-en 1 --no_id --verbose lichess_db_puzzle.csv > mat1.csv
+./extract.py --mat-en 3 --no_id --verbose lichess_db_puzzle.csv > mat3.csv
 ```
 
 ---
@@ -555,12 +513,13 @@ rm .puzzles_history_*
 
 Tests sur **Raspberry Pi 4** (4 Go RAM) :
 
-| Opération                         | Temps        | Détails                      |
-| --------------------------------- | ------------ | ---------------------------- |
-| Téléchargement                    | ~51 secondes | 263 Mo @ 5 Mo/s              |
-| Décompression                     | ~15 secondes | zstd → 1.5 Go                |
-| Extraction Python (par niveau)    | ~10 minutes | Calcul FEN avec python-chess |
-| Trainer (chargement puzzle)       | <1 seconde   | Instantané                   |
+| Opération | Temps | Détails |
+|-----------|-------|---------|
+| Téléchargement | ~51 secondes | 263 Mo @ 5 Mo/s |
+| Décompression | ~15 secondes | zstd → 1.5 Go |
+| Extraction Python (par niveau) | ~5-6 minutes | Calcul FEN avec python-chess |
+| Extraction Perl (filtrage simple) | ~56 secondes | Sans transformation FEN |
+| Trainer (chargement puzzle) | <1 seconde | Instantané |
 
 ### Structure du fichier Lichess original
 ```csv
@@ -612,7 +571,7 @@ mat5.csv                   : ~8 Mo (51 329 lignes)
 - `e7e8q` : promotion en dame (pion e7 → e8)
 - `e1g1` : petit roque (roi e1 → g1)
 
-Le trainer prends la position de départ et celle d'arrivée de la pièce, peut importe que ça soit le roi ou un pion.
+Le trainer accepte les coups en minuscules sans distinction.
 
 ---
 
@@ -658,6 +617,11 @@ source venv/bin/activate
 which python3  # Doit pointer vers ~/mat-en/venv/bin/python3
 ```
 
+**Astuce** : Créer un alias dans `~/.bashrc` :
+```bash
+alias activ='cd ~/mat-en && source venv/bin/activate'
+```
+
 ---
 
 ### Problème : Permission denied sur les scripts
@@ -685,6 +649,9 @@ Erreur: wget n'est pas installé
 ```bash
 # Debian/Ubuntu
 sudo apt install wget zstd
+
+# FreeBSD
+pkg install wget zstd
 ```
 
 ---
@@ -709,45 +676,33 @@ wc -l mat1.csv
 
 # Si problème, régénérer
 source venv/bin/activate
-./extract.py --mat-en 1 --verbose lichess_db_puzzle.csv > mat1.csv
+./extract.py --mat-en 1 --no_id --verbose lichess_db_puzzle.csv > mat1.csv
 ```
 
 ---
 
 ### Problème : Le script extract.py est très lent
 
-**C'est NORMAL** : Le calcul du nouveau FEN avec `python-chess` prend du temps.
-Lichess fournit une position FEN + un mouvement à jouer, le script Python joue l'enemble de ces mouvement et génère la position de départ à résoudre.
+**C'est normal** : Le calcul du nouveau FEN avec `python-chess` prend du temps.
 
-Voici le contenu des fichiers (en `Octrobre 2025 !`)  :
-- Fichier compressé (`lichess_db_puzzle.csv.zst`)     : 263M
-- Fichier décompressé (`lichess_db_puzzle.csv`)       : 968M
-- Nombre total de lignes/problèmes  : 5524872
-
-- Nombre d'exercice de mats en 1 coup  : 767302 mat1.csv
-- Nombre d'exercice de mats en 2 coups : 712749 mat2.csv
-- Nombre d'exercice de mats en 3 coups : 173448 mat3.csv
-- Nombre d'exercice de mats en 4 coups :  25243 mat4.csv
-- Nombre d'exercice de mats en 5 coups :   5423 mat5.csv
-
-**Solutions** (la patience) :
+**Solutions** :
 - Laissez tourner en arrière-plan : `nohup ./extract.py ... > output.csv &`
 - Utilisez `screen` ou `tmux` pour détacher la session
 - Exécutez la nuit sur un Raspberry Pi
-- Néanmoins le traitement actuel est relativement rapide sur un Raspberry Pi 4 (une dizaine de minutes pour jouer l'ensemble des coups !)
+- Pour filtrage rapide sans FEN : utilisez le script Perl (si disponible)
 
 ---
 
 ### Problème : Historique des puzzles ne se sauvegarde pas
 
-**Symptôme** : Le trainer propose les mêmes puzzles
+**Symptôme** : Le trainer redemande les mêmes puzzles
 
 **Cause** : Fichier CSV généré avec `--no_id`
 
 **Explication** : Sans IDs uniques, impossible de tracker les puzzles vus.
 
 **Solutions** :
-1. **Régénérer avec IDs** (recommandé) :
+1. **Régénérer avec IDs** (recommandé pour tracking) :
 ```bash
    ./extract.py --mat-en 1 --verbose lichess_db_puzzle.csv > mat1_avec_id.csv
 ```
@@ -790,7 +745,7 @@ rm mat1.csv
 
 ---
 
-## Structure finale du répertoire (sans suppression des fichiers utilisés)
+## Structure finale du répertoire
 ```
 ~/mat-en/
 ├── venv/                          # Environnement virtuel Python
@@ -802,7 +757,7 @@ rm mat1.csv
 │   └── ...
 ├── download_puzzles.sh            # Script de téléchargement
 ├── extract.py                     # Parser Python (transformation FEN)
-├── trainer.py                     # Trainer interactif
+├── puzzle_trainer.py              # Trainer interactif
 ├── lichess_db_puzzle.csv.zst      # Base compressée (263 Mo)
 ├── lichess_db_puzzle.csv          # Base décompressée (1.5 Go)
 ├── mat1.csv                       # Mats en 1 (767k lignes)
@@ -818,14 +773,12 @@ rm mat1.csv
 ---
 
 ## Commandes rapides (mémo)
-
 ```bash
 # Installation initiale (une seule fois)
 cd ~/mat-en
 python3 -m venv venv
 source venv/bin/activate
 pip install python-chess
-# Placer les scripts dans le répertoire
 chmod +x *.sh *.py
 
 # Télécharger la base
@@ -838,15 +791,11 @@ done
 
 # Utilisation quotidienne
 cd ~/mat-en
-./trainer.py
-
-# Utilisation pour modifier le code ou les fichiers d'exercices
-cd ~/mat-en
 source venv/bin/activate
+./puzzle_trainer.py
 
 # Désactiver le venv
 deactivate
-
 ```
 
 ---
@@ -856,10 +805,10 @@ deactivate
 ### Générer des puzzles pour un usage spécifique
 ```bash
 # Seulement les mats en 1 avec ouvertures siciliennes
-grep "Sicilian" lichess_db_puzzle.csv | ./extract.py --mat-en 1 > mat1_sicilian.csv
+grep "Sicilian" lichess_db_puzzle.csv | ./extract.py --mat-en 1 --no_id > mat1_sicilian.csv
 
 # Les 100 premiers mats en 2
-./extract.py --mat-en 2 lichess_db_puzzle.csv | head -100 > mat2_sample.csv
+./extract.py --mat-en 2 --no_id lichess_db_puzzle.csv | head -100 > mat2_sample.csv
 ```
 
 ### Statistiques sur vos sessions
@@ -898,6 +847,9 @@ tar -xzf chess_backup_20251111.tar.gz
 
 **Développement** : DeuZa - Novembre 2025
 
+Ancien DBA Oracle Senior @ Club-Internet  
+Hacker, activiste digital, passionné d'échecs
+
 **Remerciements** :
 - Lichess.org pour la base de données publique
 - La communauté python-chess
@@ -905,23 +857,27 @@ tar -xzf chess_backup_20251111.tar.gz
 
 ---
 
+## Licence
+
+Les données Lichess sont sous licence Creative Commons CC0 (domaine public).
+
+Les scripts de ce projet sont libres d'utilisation et de modification.
+
+---
+
 ## Améliorations futures possibles
 
 - 🎨 Interface TUI (Text User Interface) avec `rich` ou `textual`
 - 📊 Graphiques de progression avec `matplotlib`
+- 🌐 Mode multi-joueurs en réseau
+- 🤖 Intégration avec Stockfish pour analyses
+- 📱 Export vers Anki pour révisions espacées
+- 🏆 Système de badges et achievements
 - ⏱️ Mode chronomètre pour puzzles rapides
 - 💾 Export des statistiques en JSON/CSV
 
-Si vous avez des idées ou contributions, n'hésitez pas ! 
+Si vous avez des idées ou contributions, n'hésitez pas ! 🚀
 
 ---
 
 **Bon entraînement aux échecs ! ♟️🎯**
----
-
-----  
-
-## Licence
-
-Les données Lichess sont sous licence Creative Commons CC0 (domaine public).
-Les scripts de ce projet sont libres d'utilisation et de modification.
