@@ -1,6 +1,6 @@
-# Lichess Puzzle Suite
+# ♟️ Lichess Puzzle Suite ♟️
 
-Suite complète d'outils CLI pour télécharger, transformer et s'entraîner sur les puzzles d'échecs de la base Lichess.
+Suite complète d'outils CLI pour télécharger, transformer et s'entraîner sur les puzzles d'échecs de la base Lichess. 🎯
 
 **Composants :**
 - 🌐 `download_puzzles.sh` : Téléchargement et décompression automatique
@@ -37,17 +37,6 @@ sudo apt install -y python3 python3-venv wget zstd
 
 # Vérification des versions installées
 python3 --version    # Python 3.7+ requis
-wget --version
-zstd --version
-```
-
-### Sur FreeBSD
-```bash
-# En tant que root
-pkg install python3 wget zstd
-
-# Vérification
-python3 --version
 wget --version
 zstd --version
 ```
@@ -174,7 +163,7 @@ Le fichier existe déjà. Remplacement ? (y/N)
 
 Le script `extract.py` transforme les puzzles Lichess en positions FEN exploitables.
 
-### ⚠️ Activer le venv à chaque session
+### ⚠️ Activer le venv à chaque session modifiant les fichiers d'entrainement
 
 **IMPORTANT** : À chaque fois que vous ouvrez un nouveau terminal, vous devez activer le venv :
 ```bash
@@ -245,15 +234,7 @@ done
 wc -l mat*.csv
 ```
 
-**Temps total** : ~25-30 minutes sur Raspberry Pi 4 pour les 5 niveaux
-
-#### Exemple 3 : Extraction rapide sans transformation FEN (optionnel)
-
-Si vous avez aussi le script Perl `extract.pl` pour un filtrage rapide sans calcul de FEN :
-```bash
-# Filtrage Perl ultra-rapide (56 secondes pour tout le fichier)
-./extract.pl --mat-en 1 lichess_db_puzzle.csv > mat1_brut.csv
-```
+**Temps total** : ~20-25 minutes sur Raspberry Pi 4 pour les 5 niveaux
 
 ---
 
@@ -263,19 +244,17 @@ Le script `puzzle_trainer.py` est un trainer interactif en mode CLI pour s'entra
 
 ### ⚠️ Prérequis
 
-- Le venv doit être activé : `source venv/bin/activate`
 - Au moins un fichier `mat*.csv` doit exister dans le répertoire
 
 ### Lancement du trainer
 ```bash
 cd ~/mat-en
-source venv/bin/activate
 ./puzzle_trainer.py
 ```
 
 ### Interface du trainer
 
-#### Menu principal
+#### Menu principal (exemple)
 ```
 ============================================================
             🏆 LICHESS PUZZLE TRAINER 🏆
@@ -310,12 +289,13 @@ Entrez votre coup en notation UCI (ex: d6h2) ou 's' pour la solution:
 ### Fonctionnalités du trainer
 
 ✅ **Détection automatique** des fichiers mat*.csv disponibles  
-✅ **Gestion des formats** : avec ou sans IDs  
-✅ **Historique des puzzles** (si fichier avec IDs) - ne retombe jamais sur le même puzzle  
+✅ **Mats en plusieurs coups** pris en charge  
 ✅ **Vérification des coups** - valide si votre coup est correct  
 ✅ **Phrases amusantes** variées  
 ✅ **Statistiques de session** - taux de réussite en temps réel  
 ✅ **Interface colorée** avec émojis  
+✅ **Historique des puzzles** (si fichier avec IDs) - ne retombe jamais sur le même puzzle  
+✅ **Gestion des formats** : avec ou sans IDs  
 ✅ **Commandes** :
   - Taper votre coup (ex: `h3f2`)
   - `s` pour voir la solution sans tenter
@@ -433,30 +413,7 @@ done
 ls -lh mat*.csv
 ```
 
-**Temps total** : ~1 heure sur Raspberry Pi 4 (téléchargement + extraction)
-
-### Utilisation quotidienne
-```bash
-# 1. Activer le venv
-cd ~/mat-en
-source venv/bin/activate
-
-# 2. Lancer le trainer
-./puzzle_trainer.py
-
-# 3. Choisir votre niveau et jouer !
-```
-
-### Astuce : Alias pour aller plus vite
-
-Ajoutez dans votre `~/.bashrc` :
-```bash
-alias chess='cd ~/mat-en && source venv/bin/activate && ./puzzle_trainer.py'
-```
-
-Puis rechargez : `source ~/.bashrc`
-
-Maintenant tapez juste `chess` pour lancer le trainer ! 🎯
+**Temps total** : ~20 minutes sur Raspberry Pi 4 (téléchargement + extraction)
 
 ---
 
@@ -537,6 +494,9 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
 ```
 000rZ,2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13,d4e6 d6h2,[...]
 ```
+
+Le soucis est que le FEN n'est pas jouable immédiatement, puisqu'un coup doit être joué avant de résoudre le puzzle.
+Plutôt que de tout parser rapidement tel quel en Perl, j'ai préféré passer par Python Chess et faire jouer chacun des coups avant d'enregistrer le FEN "prêt à résoudre"
 
 **Traitement** :
 1. Parse le FEN : `2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13`
@@ -789,13 +749,13 @@ for i in {1..5}; do
     ./extract.py --mat-en $i --no_id --verbose lichess_db_puzzle.csv > mat${i}.csv
 done
 
-# Utilisation quotidienne
-cd ~/mat-en
-source venv/bin/activate
-./puzzle_trainer.py
-
 # Désactiver le venv
 deactivate
+
+# Utilisation quotidienne
+cd ~/mat-en
+./puzzle_trainer.py
+
 ```
 
 ---
@@ -838,8 +798,7 @@ tar -xzf chess_backup_20251111.tar.gz
 - **Base Lichess** : https://database.lichess.org/
 - **Documentation python-chess** : https://python-chess.readthedocs.io/
 - **Notation UCI** : https://www.chessprogramming.org/UCI
-- **Chess.com Analysis** : https://www.chess.com/analysis (pour tester les FEN)
-- **Lichess Analysis** : https://lichess.org/analysis (pour tester les FEN)
+- **Lichess Analysis** : https://lichess.org/analysis (pour tester les FEN, mais désactiver l'analyse pour ne pas avoir la solution immédiatememennt !)
 
 ---
 
@@ -851,18 +810,17 @@ Ancien DBA Oracle Senior @ Club-Internet
 Hacker, activiste digital, passionné d'échecs
 
 **Remerciements** :
-- Lichess.org pour la base de données publique
+- Lichess.org pour la base de données publique <3
+- Lichess.org pour proposer l'équivalent de ce qui est payant ailleurs entiérement gratuit et open-source <3
 - La communauté python-chess
-- Tous les contributeurs open source
+- Tous les contributeurs open source et fournisseurs de data love
 
 ---
 
 ## Licence
 
 Les données Lichess sont sous licence Creative Commons CC0 (domaine public).
-
-Les scripts de ce projet sont libres d'utilisation et de modification.
-
+Les scripts de ce projet également sous licence CC0 (domaine public), faites en ce que vous voulez.
 ---
 
 ## Améliorations futures possibles
@@ -880,4 +838,4 @@ Si vous avez des idées ou contributions, n'hésitez pas ! 🚀
 
 ---
 
-**Bon entraînement aux échecs ! ♟️🎯**
+**Bon entraînement aux échecs ! **
